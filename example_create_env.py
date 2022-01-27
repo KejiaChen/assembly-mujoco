@@ -6,7 +6,8 @@ from robosuite.models.grippers import gripper_factory
 from robosuite.models.arenas import TableArena
 from robosuite.models.objects import BallObject
 from robosuite.utils.mjcf_utils import new_joint
-from mujoco_py import MjSim, MjViewer
+import mujoco_py
+import os
 from robosuite.models.objects import PlateWithHoleObject
 from robosuite.utils.placement_samplers import SequentialCompositeSampler, UniformRandomSampler
 
@@ -31,25 +32,29 @@ world = MujocoWorldBase()
 # # add the table to the world
 # world.merge(mujoco_arena)
 
-# Adding the object
-sphere = BallObject(
-    name="sphere",
-    size=[0.04],
-    rgba=[0, 0.5, 0.5, 1]).get_obj()
-sphere.set('pos', '1.0 0 1.0')
-world.worldbody.append(sphere)
+# # Adding the object
+# sphere = BallObject(
+#     name="sphere",
+#     size=[0.04],
+#     rgba=[0, 0.5, 0.5, 1]).get_obj()
+# sphere.set('pos', '1.0 0 1.0')
+# world.worldbody.append(sphere)
+#
+# # Adding another object
+# plate_with_hole = PlateWithHoleObject(name="PlateWithHole")
+# plate_with_hole.set_sites_visibility()
+# world.merge(plate_with_hole)
+#
+#
+# # Running the simulation
+# model = world.get_model(mode="mujoco_py")
 
-# Adding another object
-plate_with_hole = PlateWithHoleObject(name="PlateWithHole")
-plate_with_hole.set_sites_visibility()
-world.merge(plate_with_hole)
 
-
-# Running the simulation
-model = world.get_model(mode="mujoco_py")
-
-sim = MjSim(model)
-viewer = MjViewer(sim)
+mj_path = mujoco_py.utils.discover_mujoco()
+xml_path = os.path.join(mj_path, 'model', 'rope.xml')
+model = mujoco_py.load_model_from_path(xml_path)
+sim = mujoco_py.MjSim(model)
+viewer = mujoco_py.MjViewer(sim)
 viewer.vopt.geomgroup[0] = 0  # disable visualization of collision mesh
 
 for i in range(10000):

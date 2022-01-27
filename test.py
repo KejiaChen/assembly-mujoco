@@ -1,28 +1,32 @@
 import os
+import numpy as np
+import mujoco_py
 from mujoco_py import load_model_from_xml, MjSim, MjViewer
+import robosuite as suite
+from robosuite.models.arenas import TableArena, PegsArena
 
-MODEL_XML = """
-<?xml version="1.0" ?>
-<mujoco>
-    <worldbody>
-        <body name="box" pos="0 0 0.2">
-            <geom size="0.15 0.15 0.15" type="box"/>
-            <joint axis="1 0 0" name="box:x" type="slide"/>
-            <joint axis="0 1 0" name="box:y" type="slide"/>
-        </body>
-        <body name="floor" pos="0 0 0.025">
-            <geom size="1.0 1.0 0.02" rgba="0 1 0 1" type="box"/>
-        </body>
-    </worldbody>
-</mujoco>
-"""
 
+mj_path = mujoco_py.utils.discover_mujoco()
+# XML_PATH = os.path.join('/home/kejia/Documents/assembly-mujoco/models/robots', '/', 'two_franka_panda.xml')
+XML_PATH = '/home/kejia/Documents/assembly-mujoco/models/franka_sim/two_franka_panda.xml'
+XML_PATH_ROPE = '/home/kejia/Documents/assembly-mujoco/models/franka_sim/assets/rope_expanded.xml'
+# CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+# XML_PATH = os.path.join(CURRENT_DIR, "models/objects/rope.xml")
 
 def print_box_xpos(sim):
     print("box xpos:", sim.data.get_body_xpos("box"))
 
+# Creating the table
+mujoco_arena = PegsArena(
+            table_full_size=(0.8, 0.8, 0.05),
+            table_friction=(1, 0.005, 0.0001),
+            table_offset=np.array((0, 0, 0.82)),
+        )
+mujoco_arena.set_origin([0, 0, 0])
 
-model = load_model_from_xml(MODEL_XML)
+# Creating the rope
+# model = load_model_from_xml(MODEL_XML)
+model = mujoco_py.load_model_from_path(XML_PATH)
 sim = MjSim(model)
 viewer = MjViewer(sim)
 
@@ -40,15 +44,17 @@ viewer = MjViewer(sim)
 # print_box_xpos(sim)
 
 while True:
-    for state in states:
-        sim_state = sim.get_state()
+    viewer.render()
+    sim.step()
+    # for state in states:
+    #     sim_state = sim.get_state()
         # sim_state.qpos[x_joint_i] = state["box:x"]
         # sim_state.qpos[y_joint_i] = state["box:y"]
         # sim.set_state(sim_state)
         # sim.forward()
         # print("updated state to", state)
         # print_box_xpos(sim)
-        viewer.render()
+        # viewer.render()
 
-    if os.getenv('TESTING') is not None:
-        break
+    # if os.getenv('TESTING') is not None:
+    #     break

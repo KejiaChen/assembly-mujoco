@@ -11,7 +11,7 @@
 -->
 
 <mujoco model="Rope">
-  <include file="scene.xml"/>
+  <include file="basic_scene.xml"/>
 
   <option timestep="0.002" jacobian="dense"/>
 
